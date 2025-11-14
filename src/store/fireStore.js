@@ -8,12 +8,122 @@ import {
   updateDoc,
 } from "firebase/firestore";
 import { app } from "@/firebase/config";
+import { getAuth } from "firebase/auth";
 const db = getFirestore(app);
+
+const initialState = {
+  theme: "#b91c1c",
+  textTheme: "#fafafa",
+  colors: [
+    { id: 1, nombre: "theme", color: "b91c1c" },
+    { id: 2, nombre: "text", color: "fafafa" },
+    { id: 3, nombre: "", color: "" },
+    { id: 4, nombre: "", color: "" },
+    { id: 5, nombre: "", color: "" },
+    { id: 6, nombre: "", color: "" },
+    { id: 7, nombre: "", color: "" },
+    { id: 8, nombre: "", color: "" },
+    { id: 9, nombre: "", color: "" },
+    { id: 10, nombre: "", color: "" },
+    { id: 11, nombre: "", color: "" },
+    { id: 12, nombre: "", color: "" },
+    { id: 13, nombre: "", color: "" },
+    { id: 14, nombre: "", color: "" },
+    { id: 15, nombre: "", color: "" },
+    { id: 16, nombre: "", color: "" },
+    { id: 17, nombre: "", color: "" },
+    { id: 18, nombre: "", color: "" },
+    { id: 19, nombre: "", color: "" },
+    { id: 20, nombre: "", color: "" },
+    { id: 21, nombre: "", color: "" },
+    { id: 22, nombre: "", color: "" },
+    { id: 23, nombre: "", color: "" },
+    { id: 24, nombre: "", color: "" },
+  ],
+  links: [
+    {
+      id: 1,
+      nombre: "Fasttools",
+      link: "https://fasttools.vercel.app",
+      icono: "https://fasttools.vercel.app/icono.png",
+    },
+    { id: 2, nombre: "", link: ":", icono: "" },
+    { id: 3, nombre: "", link: ":", icono: "" },
+    { id: 4, nombre: "", link: ":", icono: "" },
+    { id: 5, nombre: "", link: "", icono: "" },
+    { id: 6, nombre: "", link: "", icono: "" },
+    { id: 7, nombre: "", link: "", icono: "" },
+    { id: 8, nombre: "", link: "", icono: "" },
+    { id: 9, nombre: "", link: "", icono: "" },
+    { id: 10, nombre: "", link: "", icono: "" },
+    { id: 11, nombre: "", link: "", icono: "" },
+    { id: 12, nombre: "", link: "", icono: "" },
+    { id: 13, nombre: "", link: "", icono: "" },
+    { id: 14, nombre: "", link: "", icono: "" },
+    { id: 15, nombre: "", link: "", icono: "" },
+    { id: 16, nombre: "", link: "", icono: "" },
+    { id: 17, nombre: "", link: "", icono: "" },
+    { id: 18, nombre: "", link: "", icono: "" },
+    { id: 19, nombre: "", link: "", icono: "" },
+    { id: 20, nombre: "", link: "", icono: "" },
+    { id: 21, nombre: "", link: "", icono: "" },
+    { id: 22, nombre: "", link: "", icono: "" },
+    { id: 23, nombre: "", link: "", icono: "" },
+    { id: 24, nombre: "", link: "", icono: "" },
+    { id: 25, nombre: "", link: "", icono: "" },
+    { id: 26, nombre: "", link: "", icono: "" },
+    { id: 27, nombre: "", link: "", icono: "" },
+    { id: 28, nombre: "", link: "", icono: "" },
+    { id: 29, nombre: "", link: "", icono: "" },
+    { id: 30, nombre: "", link: "", icono: "" },
+    { id: 31, nombre: "", link: "", icono: "" },
+    { id: 32, nombre: "", link: "", icono: "" },
+  ],
+  text: "",
+  title: "",
+  tabs: {
+    header: true,
+    calculator: false,
+    recorder: false,
+    notes: false,
+    conversor: false,
+    links: false,
+    colors: false,
+    apiTester: false,
+    jwt: false,
+    editor: false,
+    qr: false,
+    picker: false,
+  },
+  notes: Array.from({ length: 32 }, (_, i) => ({
+    id: i + 1,
+    title: "",
+    content: "",
+    color: "#000000",
+  })),
+  toolbarArea: [
+    { id: 1, label: "notes" },
+    { id: 2, label: "calculator" },
+    { id: 3, label: "recorder" },
+    { id: 4, label: "picker" },
+    { id: 5, label: "conversor" },
+    { id: 6, label: "links" },
+    { id: 7, label: "colors" },
+    { id: 10, label: "editor" },
+    { id: 11, label: "qr" },
+  ],
+  headerArea: [
+    { id: 8, label: "apiTester" },
+    { id: 9, label: "jwt" },
+  ],
+  api: "http://localhost:3000",
+  loading: true,
+  error: null,
+};
 
 export const fireStore = createStore((set, get) => ({
   theme: "#b91c1c",
   textTheme: "#fafafa",
-  uid: null,
   colors: [
     { id: 1, nombre: "theme", color: "b91c1c" },
     { id: 2, nombre: "text", color: "fafafa" },
@@ -165,10 +275,7 @@ export const fireStore = createStore((set, get) => ({
     { id: 8, label: "apiTester" },
     { id: 9, label: "jwt" },
   ],
-  setUid: (uid) => {
-    set({ uid });
-    get().saveToFirestore();
-  },
+
   setTheme: (color) => {
     set({ theme: `#${color}` });
     get().saveToFirestore();
@@ -180,11 +287,10 @@ export const fireStore = createStore((set, get) => ({
   api: "http://localhost:3000",
   loading: true,
   error: null,
-  loadUserData: (uid) => {
-    if (!uid) {
-      return;
-    }
-    set({ uid: uid });
+  loadUserData: () => {
+    const auth = getAuth();
+    const uid = auth.currentUser?.uid;
+    console.log(uid);
     const userDoc = doc(db, "stores", uid);
     const unsubscribe = onSnapshot(
       userDoc,
@@ -313,6 +419,10 @@ export const fireStore = createStore((set, get) => ({
       [to]: [...target, item],
     });
     get().saveToFirestore();
+  },
+  resetStore: () => {
+    console.log("reseteando store");
+    set(initialState);
   },
 }));
 

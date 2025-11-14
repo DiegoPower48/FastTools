@@ -197,7 +197,7 @@ export default function Notes({ notes, setNotes, theme, textTheme }) {
                     id="title"
                     type="text"
                     placeholder={notes[id].title || ""}
-                    className="p-2 rounded placeholder:text-gray-500"
+                    className="p-2 rounded placeholder:text-gray-500 placeholder:opacity-40"
                     value={title}
                     onChange={(e) => {
                       const title = e.target.value;
@@ -219,9 +219,9 @@ export default function Notes({ notes, setNotes, theme, textTheme }) {
                   rows={10}
                   disabled={!editable}
                   id="content"
+                  placeholder={notes[id].content || ""}
                   style={{ color: textTheme }}
-                  className={`text-white disabled:cursor-text disabled:select-text resize-none p-2 w-full rounded ${styles.scrollContainer}`}
-                  placeholder={content || ""}
+                  className={`text-white disabled:cursor-text disabled:select-text resize-none p-2 w-full rounded ${styles.scrollContainer} placeholder:opacity-40`}
                   value={content}
                   onChange={(e) => {
                     const content = e.target.value;

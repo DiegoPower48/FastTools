@@ -13,7 +13,7 @@ import Image from "next/image";
 import ImageCropper from "@/components/ImageCropper";
 import QRGenerator from "@/components/QRGenerator";
 import useUserStore from "@/store/userStore";
-import { useFireStore } from "@/store/fireStore";
+import { useFireStore, fireStore } from "@/store/fireStore";
 import { getAuth, onAuthStateChanged } from "firebase/auth";
 import { useRouter } from "next/navigation";
 import ImageColorPicker from "@/components/colorPicker";
@@ -38,6 +38,7 @@ export default function Page() {
   const { logout, setUser } = useUserStore();
   const {
     tabs,
+    setUid,
     colors,
     links,
     api,
@@ -62,6 +63,7 @@ export default function Page() {
   }));
   const router = useRouter();
   const getOut = () => {
+    fireStore.getState().resetStore();
     logout();
     toast.success("Session closed");
     router.push("/");

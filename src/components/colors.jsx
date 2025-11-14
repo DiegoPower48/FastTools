@@ -199,7 +199,8 @@ export default function Colors({
               <Input
                 id="nombre"
                 type="text"
-                className="p-2 rounded placeholder:text-gray-500"
+                placeholder={colors[id].nombre || ""}
+                className="p-2 rounded placeholder:text-gray-500 placeholder:opacity-40"
                 value={nombre}
                 onChange={(e) => {
                   const nombre = e.target.value;
@@ -225,7 +226,7 @@ export default function Colors({
                 <Input
                   id="color"
                   maxLength={9}
-                  className="p-2 w-40 rounded "
+                  className="p-2 w-40 rounded placeholder:opacity-40"
                   type="text"
                   placeholder={colors[id].color || ""}
                   value={color.toUpperCase()}

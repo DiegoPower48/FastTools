@@ -30,7 +30,7 @@ export default function Login({ theme, textTheme }) {
 
   return (
     <div className="flex w-full h-full">
-      <div>
+      <div className="flex flex-col items-center justify-center">
         <Image src="/icono.png" alt="Logo" width={400} height={400} />
       </div>
       <form
@@ -38,16 +38,16 @@ export default function Login({ theme, textTheme }) {
         className="w-full flex flex-col items-center justify-center gap-6"
       >
         <div className="w-full">
-          <label>EMAIL</label>
+          <label className="font-bold">EMAIL</label>
           <Input
             required
-            type="text"
+            type="email"
             onChange={(e) => setEmail(e.target.value)}
             value={email}
           />
         </div>
         <div className="w-full">
-          <label>PASSWORD</label>
+          <label className="font-bold">PASSWORD</label>
           <Input
             required
             type="password"

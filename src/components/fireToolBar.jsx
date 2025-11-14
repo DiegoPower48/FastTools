@@ -69,10 +69,11 @@ function SortableButton({ id, label, theme, textTheme }) {
   const style = {
     transform: CSS.Transform.toString(transform),
     transition,
+    boxShadow: `0 0 15px 2px ${textTheme}`,
+    color: textTheme,
     backgroundColor: theme,
     color: textTheme,
-    boxShadow: `0px 0px 5px 1px ${theme}`,
-    opacity: isDragging ? 0.5 : 1,
+    opacity: isDragging ? 0 : 1,
   };
 
   return (
@@ -85,10 +86,7 @@ function SortableButton({ id, label, theme, textTheme }) {
         label === "recorder" || label === "picker" ? "sm:block hidden" : ""
       }`}
     >
-      <Icon
-        style={{ boxShadow: `0 0 15px 2px ${textTheme}`, color: textTheme }}
-        size={40}
-      />
+      <Icon size={40} />
     </div>
   );
 }
@@ -99,11 +97,11 @@ function ButtonOverlay({ label, theme, textTheme }) {
   return (
     <div
       style={{
-        backgroundColor: theme,
+        boxShadow: `0 0 15px 2px ${textTheme}`,
         color: textTheme,
-        boxShadow: `0px 0px 10px 2px ${theme}`,
+        backgroundColor: theme,
       }}
-      className="relative h-14 w-14 p-2 border-2 border-black rounded flex justify-center items-center cursor-grabbing"
+      className="relative h-14 w-14 rounded flex justify-center items-center cursor-grabbing"
     >
       <Icon size={40} />
     </div>
@@ -310,7 +308,7 @@ export default function FireToolBar({ theme, getOut, textTheme }) {
               backgroundColor: theme,
               color: textTheme,
             }}
-            className=" w-screen flex flex-col items-center justify-center"
+            className="w-screen flex flex-col items-center justify-center"
           >
             <span
               style={{ textShadow: `0 0 20px ${textTheme}` }}

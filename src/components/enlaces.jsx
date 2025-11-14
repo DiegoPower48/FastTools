@@ -178,9 +178,9 @@ export default function Links({ links, setLinks, theme, textTheme }) {
               <Input
                 id="icono"
                 type="text"
-                className="p-2 rounded placeholder:text-gray-500 "
+                className="p-2 rounded placeholder:text-gray-500  placeholder:opacity-40"
+                placeholder="URL"
                 value={icono}
-                placeholder="Url"
                 onChange={(e) => {
                   const icono = e.target.value;
                   setIcono(icono);
@@ -195,7 +195,7 @@ export default function Links({ links, setLinks, theme, textTheme }) {
                 id="nombre"
                 type="text"
                 placeholder={links[id].nombre || ""}
-                className="p-2 rounded placeholder:text-gray-500 "
+                className="p-2 rounded placeholder:text-gray-500 placeholder:opacity-40 "
                 value={nombre}
                 onChange={(e) => {
                   const nombre = e.target.value;
@@ -210,7 +210,7 @@ export default function Links({ links, setLinks, theme, textTheme }) {
               <div className="w-full h-full flex gap-4">
                 <Input
                   id="link"
-                  className="p-2 w-full rounded"
+                  className="p-2 w-full rounded placeholder:opacity-40"
                   type="text"
                   placeholder={links[id].link || ""}
                   value={link}

@@ -25,12 +25,12 @@ export const login = async (email, password, callback) => {
   }
 };
 
-export const register = async (email, password) => {
+export const register = async (email, password, callback) => {
   try {
     await createUserWithEmailAndPassword(auth, email, password);
     return;
   } catch (error) {
-    console.log(error);
+    callback(error);
   }
 };
 

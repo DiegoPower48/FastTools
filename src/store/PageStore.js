@@ -2,14 +2,6 @@ import { createStore } from "zustand/vanilla";
 import { persist } from "zustand/middleware";
 
 import { useStore } from "zustand";
-import { label } from "framer-motion/client";
-
-function arrayMove(arr, fromIndex, toIndex) {
-  const newArr = arr.slice();
-  const [item] = newArr.splice(fromIndex, 1);
-  newArr.splice(toIndex, 0, item);
-  return newArr;
-}
 
 export const pageStore = createStore(
   persist(

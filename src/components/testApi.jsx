@@ -255,7 +255,7 @@ export default function ApiTester({ theme, textTheme, api, setApi }) {
                 }}
                 value={headers}
                 onChange={handleHeadersChange}
-                className={`bg-transparent ${
+                className={`placeholder:opacity-40 bg-transparent ${
                   styles.scrollContainer
                 } p-2 resize-none w-full rounded border font-mono text-sm  ${
                   headersError
@@ -305,7 +305,7 @@ export default function ApiTester({ theme, textTheme, api, setApi }) {
                 }}
                 onChange={handleBodyChange}
                 disabled={method === "GET" || method === "HEAD"}
-                className={`bg-transparent ${
+                className={`bg-transparent placeholder:opacity-40  ${
                   styles.scrollContainer
                 } resize-none  w-full p-2 rounded border font-mono text-sm 
               ${
@@ -314,7 +314,7 @@ export default function ApiTester({ theme, textTheme, api, setApi }) {
                   : "border-gray-700 bg-gray-800"
               } 
               disabled:opacity-20`}
-                placeholder='{"name": "Diego", "age": 25}'
+                placeholder='{"name": "Diego", "age": 32}'
               />
               <div className="w-full flex justify-between">
                 <p className="text-red-400 text-xs mt-1 font-mono">

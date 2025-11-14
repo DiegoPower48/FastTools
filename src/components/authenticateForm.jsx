@@ -6,6 +6,7 @@ import Register from "./register";
 import { Button } from "./ui/button";
 import { loginWithGoogle } from "@/firebase/auth";
 import toast from "react-hot-toast";
+import { IconBrandGoogle } from "@tabler/icons-react";
 
 export default function AuthenticateForm({ theme, textTheme }) {
   const [modo, setModo] = useState("login");
@@ -28,48 +29,42 @@ export default function AuthenticateForm({ theme, textTheme }) {
           className="font-bold p-2 rounded"
           style={{
             color: modo === "login" ? textTheme : theme,
-            border: modo === "login" ? "2px solid white" : "2px solid black",
-            backgroundColor: modo === "login" && theme,
+            border: modo === "login" ? "2px solid white" : "",
+            backgroundColor: modo === "login" ? theme : `${theme}40`,
           }}
           onClick={() => setModo("login")}
         >
-          Login
+          LOGIN
         </Button>
         <Button
           variant="ghost"
           style={{
             color: modo === "register" ? textTheme : theme,
-            border: modo === "register" ? "2px solid white" : "2px solid black",
-            backgroundColor: modo === "register" && theme,
+            border: modo === "register" ? "2px solid white" : "",
+            backgroundColor: modo === "register" ? theme : `${theme}40`,
           }}
           className="font-bold p-2 rounded"
           onClick={() => setModo("register")}
         >
-          Register
+          REGISTER
         </Button>
         <Button
           variant="ghost"
           style={{
             color: modo === "google" ? textTheme : theme,
-            border: modo === "google" ? "2px solid white" : "2px solid black",
-            backgroundColor: modo === "google" && theme,
+            border: modo === "google" ? "2px solid white" : "",
+            backgroundColor: modo === "google" ? theme : `${theme}40`,
           }}
-          className="font-bold p-2 rounded"
+          className="font-bold p-2 rounded flex items-center gap-2"
           onClick={() => setModo("google")}
         >
-          Google
+          <IconBrandGoogle /> GOOGLE
         </Button>
       </div>
-      <div>
-        {modo === "login" && (
-          <div>
-            <Login theme={theme} textTheme={textTheme} />
-          </div>
-        )}
+      <div className="flex-1 flex flex-col items-center justify-center ">
+        {modo === "login" && <Login theme={theme} textTheme={textTheme} />}
         {modo === "register" && (
-          <div>
-            <Register theme={theme} textTheme={textTheme} />
-          </div>
+          <Register theme={theme} textTheme={textTheme} />
         )}
         {modo === "google" && (
           <div>

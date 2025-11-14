@@ -176,12 +176,10 @@ export default function Page() {
       <Dialog onOpenChange={setAuthenticate} open={authenticate}>
         <DialogContent
           style={{ color: theme, border: `1px solid ${theme}` }}
-          className="bg-black flex flex-col w-full justify-center items-center"
+          className="bg-black flex flex-col h-[450px] w-full items-center"
         >
           <DialogHeader>
-            <DialogTitle className="text-center">
-              Puedes guardar tus datos
-            </DialogTitle>
+            <DialogTitle className="text-center"></DialogTitle>
             <DialogDescription></DialogDescription>
           </DialogHeader>
           <AuthenticateForm theme={theme} textTheme={textTheme} />

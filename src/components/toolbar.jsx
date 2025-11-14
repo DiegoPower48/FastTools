@@ -72,7 +72,7 @@ function SortableButton({ id, label, theme, textTheme }) {
     transition,
     backgroundColor: theme,
     color: textTheme,
-    boxShadow: `0px 0px 5px 1px ${theme}`,
+    boxShadow: `0px 0px 15px 2px ${theme}`,
     opacity: isDragging ? 0.5 : 1,
   };
 
