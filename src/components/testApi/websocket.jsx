@@ -8,12 +8,13 @@ export default function Websocket({
   theme = "#ffffff",
   textTheme = "#000000",
 }) {
-  const [url, setUrl] = useState("http://localhost:3010");
+  const [url, setUrl] = useState("http://localhost:3000");
   const [message, setMessage] = useState("");
-  const [event, setEvent] = useState("message");
+  const [event, setEvent] = useState("");
   const [logs, setLogs] = useState([]);
   const [socket, setSocket] = useState(null);
   const [isConnected, setIsConnected] = useState(false);
+  const [isConnecting, setIsConnecting] = useState(false);
 
   const logsRef = useRef(null);
 
@@ -28,6 +29,7 @@ export default function Websocket({
 
   const connect = () => {
     try {
+      setIsConnecting(true);
       const s = io(url, {
         transports: ["websocket", "polling"],
         reconnection: true,
@@ -38,6 +40,7 @@ export default function Websocket({
 
       s.on("connect", () => {
         setIsConnected(true);
+        setIsConnecting(false);
         addLog(`🟢 Connected to ${url} (ID: ${s.id})`);
       });
 
@@ -45,22 +48,25 @@ export default function Websocket({
         console.log("Connection error:", err);
         addLog(`❌ Connection error: ${err.message}`);
         addLog(`💡 Verifica que el servidor esté corriendo en ${url}`);
+        if (!s.active) {
+          setIsConnecting(false);
+        }
       });
 
       s.on("disconnect", (reason) => {
         setIsConnected(false);
+        setIsConnecting(false);
         addLog(`🔴 Disconnected: ${reason}`);
       });
 
       s.onAny((event, ...args) => {
-        if (event !== "connect" && event !== "disconnect") {
-          let data = args;
-          if (args.length === 1) {
-            data = args[0];
-          }
+        if (!s.connected) return;
 
+        if (event !== "connect" && event !== "disconnect") {
           const formatted =
-            typeof data === "string" ? data : JSON.stringify(data, null, 2);
+            typeof args[0] === "string"
+              ? args[0]
+              : JSON.stringify(args[0], null, 2);
 
           addLog(`📥 Event "${event}": ${formatted}`);
         }
@@ -70,16 +76,20 @@ export default function Websocket({
       addLog(`⏳ Connecting to ${url}...`);
     } catch (e) {
       addLog(`❌ Failed to connect: ${e.message}`);
+      setIsConnected(false);
+      setIsConnecting(false);
     }
   };
 
   const disconnect = () => {
     if (!socket) return;
-    socket.disconnect();
-    socket.removeAllListeners();
-    setSocket(null);
+    addLog("🔌 Disconnecting...");
+    setIsConnecting(false);
     setIsConnected(false);
-    addLog("🔌 Disconnected manually");
+    socket.removeAllListeners();
+    socket.disconnect();
+    setSocket(null);
+    addLog("🔴 Disconnected manually");
   };
 
   const sendMessage = () => {
@@ -134,13 +144,13 @@ export default function Websocket({
             className="flex-1"
           />
 
-          {isConnected ? (
+          {isConnected || isConnecting ? (
             <Button
-              className="font-bold"
-              onClick={disconnect}
+              className={`font-bold ${isConnecting ? "opacity-50" : ""}`}
               variant="destructive"
+              onClick={disconnect}
             >
-              Disconnect
+              {isConnecting ? "Stop" : "Disconnect"}
             </Button>
           ) : (
             <Button
@@ -156,7 +166,7 @@ export default function Websocket({
         {/* Message Sender */}
         <div className="flex gap-2">
           <Input
-            placeholder="Event name (e.g., message)"
+            placeholder="Event name"
             value={event}
             onChange={(e) => setEvent(e.target.value)}
             disabled={!isConnected}

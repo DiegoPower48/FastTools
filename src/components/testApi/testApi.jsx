@@ -1,12 +1,7 @@
 import { useState } from "react";
 import Rest from "./rest";
 import Websocket from "./websocket";
-import {
-  IconApi,
-  IconBrandSocketIo,
-  IconHttpConnect,
-  IconHttpGet,
-} from "@tabler/icons-react";
+import { IconBrandSocketIo } from "@tabler/icons-react";
 export default function ApiTester({ theme, textTheme, api, setApi }) {
   const [modo, setModo] = useState("rest");
   return (
