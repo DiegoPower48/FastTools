@@ -1,13 +1,19 @@
-import { v2 as cloudinary } from "cloudinary";
+import {
+  S3Client,
+  PutObjectCommand,
+  ListObjectsV2Command,
+} from "@aws-sdk/client-s3";
 
-cloudinary.config({
-  cloud_name: process.env.CLOUDINARY_CLOUD_NAME,
-  api_key: process.env.CLOUDINARY_API_KEY,
-  api_secret: process.env.CLOUDINARY_API_SECRET,
+const s3Client = new S3Client({
+  region: "auto",
+  endpoint: `https://${process.env.R2_ACCOUNT_ID}.r2.cloudflarestorage.com`,
+  credentials: {
+    accessKeyId: process.env.R2_ACCESS_KEY_ID,
+    secretAccessKey: process.env.R2_SECRET_ACCESS_KEY,
+  },
 });
 
 export async function POST(req) {
-  console.log("hola");
   try {
     const { uid, id, file } = await req.json();
 
@@ -39,28 +45,24 @@ export async function POST(req) {
     return Response.json({ error: "Error uploading video" }, { status: 500 });
   }
 }
-
 export async function GET(req, { params }) {
   try {
     const { uid } = await params;
-    // Buscar imágenes dentro de la carpeta del usuario
-    const result = await cloudinary.search
-      .expression(`folder:fasttools/${uid} AND resource_type:video`)
-      .sort_by("public_id", "asc")
-      .max_results(6)
-      .execute();
-
-    result.resources.sort((a, b) => {
-      const getNumber = (id) => {
-        const match = id.match(/video(\d+)$/); // ⬅️ SOLO busca "imageN" al FINAL
-        return match ? Number(match[1]) : 6;
-      };
-
-      return getNumber(a.public_id) - getNumber(b.public_id);
+    const command = new ListObjectsV2Command({
+      Bucket: process.env.R2_BUCKET_NAME,
+      Prefix: `fasttools/${uid}/video`, // Filtramos por el prefijo video
     });
-    return Response.json(result.resources, { status: 200 });
+
+    const data = await s3Client.send(command);
+
+    if (!data.Contents) return Response.json([], { status: 200 });
+
+    const resources = data.Contents.map((file) => ({
+      secure_url: `${process.env.R2_PUBLIC_URL}/${file.Key}`,
+    }));
+
+    return Response.json(resources, { status: 200 });
   } catch (error) {
-    console.error("Error en GET /api/upload:", error);
-    return Response.json({ error: "Error fetching images" }, { status: 500 });
+    return Response.json({ error: "Error" }, { status: 500 });
   }
 }

@@ -1,67 +1,42 @@
 // /api/get-background-signature.js
-import { v2 as cloudinary } from "cloudinary";
+import { S3Client, PutObjectCommand } from "@aws-sdk/client-s3";
+import { getSignedUrl } from "@aws-sdk/s3-request-presigner";
 
-cloudinary.config({
-  cloud_name: process.env.CLOUDINARY_CLOUD_NAME,
-  api_key: process.env.CLOUDINARY_API_KEY,
-  api_secret: process.env.CLOUDINARY_API_SECRET,
+const s3Client = new S3Client({
+  region: "auto",
+  endpoint: `https://${process.env.R2_ACCOUNT_ID}.r2.cloudflarestorage.com`,
+  credentials: {
+    accessKeyId: process.env.R2_ACCESS_KEY_ID,
+    secretAccessKey: process.env.R2_SECRET_ACCESS_KEY,
+  },
 });
 
 export async function POST(req) {
   try {
-    const { uid, id } = await req.json();
-    console.log(id);
-    if (!uid) {
-      return Response.json({ error: "Missing uid" }, { status: 400 });
+    const { uid, id, contentType } = await req.json();
+
+    if (!uid || !id) {
+      return Response.json({ error: "Missing uid or id" }, { status: 400 });
     }
 
-    // Eliminar video previo
-    const publicIdToDelete = `fasttools/${uid}/video`;
+    const fileName = `fasttools/${uid}/video${id}`;
 
-    try {
-      await cloudinary.uploader.destroy(publicIdToDelete, {
-        resource_type: "video",
-      });
-      console.log("Previous background video deleted");
-    } catch (deleteError) {
-      console.log(
-        "No previous background video to delete or error:",
-        deleteError
-      );
-    }
-
-    // Generar timestamp y firma CON TRANSFORMACIONES
-    const timestamp = Math.round(new Date().getTime() / 1000);
-    const folder = `fasttools/${uid}`;
-    const publicId = `video${id}`;
-
-    // 🚀 PARÁMETROS DE OPTIMIZACIÓN
-    const eager = "q_auto:eco,w_1920,c_scale,f_auto"; // Optimización automática
-    const eager_async = true; // Procesar en segundo plano
-
-    const signature = cloudinary.utils.api_sign_request(
-      {
-        timestamp,
-        folder,
-        public_id: publicId,
-        eager,
-        eager_async,
-      },
-      process.env.CLOUDINARY_API_SECRET
-    );
-
-    return Response.json({
-      signature,
-      timestamp,
-      cloudName: process.env.CLOUDINARY_CLOUD_NAME,
-      apiKey: process.env.CLOUDINARY_API_KEY,
-      folder,
-      publicId,
-      eager,
-      eager_async,
+    const command = new PutObjectCommand({
+      Bucket: process.env.R2_BUCKET_NAME,
+      Key: fileName,
+      ContentType: contentType || "video/mp4", // Vital para que se reproduzca en el navegador
     });
+
+    // Generar URL firmada válida por 5 minutos
+    const uploadUrl = await getSignedUrl(s3Client, command, { expiresIn: 300 });
+    const publicUrl = `${process.env.R2_PUBLIC_URL}/${fileName}`;
+
+    return Response.json({ uploadUrl, publicUrl });
   } catch (error) {
-    console.error("Signature generation error:", error);
-    return Response.json({ error: String(error) }, { status: 500 });
+    console.error("R2 Signature error:", error);
+    return Response.json(
+      { error: "Could not generate upload URL" },
+      { status: 500 }
+    );
   }
 }

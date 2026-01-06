@@ -374,86 +374,71 @@ function SimpleVideo({
   const videoRef = useRef(null);
   const [loading, setLoading] = useState(false);
   const fileInputRef = useRef(null);
+
+  // 🔥 Límite de tamaño: 50MB en bytes
+  const MAX_FILE_SIZE = 50 * 1024 * 1024; // 50MB
+
   const uploadTemp = async (file) => {
     setLoading(true);
     try {
-      // 1. Obtener firma del servidor
+      // 1. Obtener la URL de subida firmada desde nuestro servidor
       const sigResponse = await fetch("/api/get-background-signature", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ uid, id }),
+        body: JSON.stringify({ uid, id, contentType: file.type }),
       });
 
-      if (!sigResponse.ok) {
-        throw new Error("Failed to get upload signature");
-      }
+      if (!sigResponse.ok) throw new Error("Failed to get upload URL");
+      const { uploadUrl, publicUrl } = await sigResponse.json();
 
-      const {
-        signature,
-        timestamp,
-        cloudName,
-        apiKey,
-        folder,
-        publicId,
-        eager,
-        eager_async,
-      } = await sigResponse.json();
+      // 2. Subir directamente a Cloudflare R2
+      // IMPORTANTE: Usamos PUT y el cuerpo es directamente el archivo 'file'
+      const uploadResponse = await fetch(uploadUrl, {
+        method: "PUT",
+        body: file,
+        headers: {
+          "Content-Type": file.type,
+        },
+      });
 
-      // 2. Subir directamente a Cloudinary CON optimizaciones
-      const formData = new FormData();
-      formData.append("file", file);
-      formData.append("signature", signature);
-      formData.append("timestamp", timestamp);
-      formData.append("api_key", apiKey);
-      formData.append("folder", folder);
-      formData.append("public_id", publicId);
-      formData.append("eager", eager); // 🚀 Transformaciones
-      formData.append("eager_async", eager_async); // 🚀 Async processing
-
-      const uploadResponse = await fetch(
-        `https://api.cloudinary.com/v1_1/${cloudName}/video/upload`,
-        {
-          method: "POST",
-          body: formData,
-        }
-      );
-      console.log("no error");
       if (!uploadResponse.ok) {
-        console.log("error");
-        const errorData = await uploadResponse.json();
-        throw new Error(errorData.error?.message || "Upload failed");
+        throw new Error("Upload to R2 failed");
       }
 
-      const data = await uploadResponse.json();
+      // 3. Actualizar el estado con la URL pública + cache busting
+      const finalUrl = `${publicUrl}?t=${Date.now()}`;
 
-      console.log("Upload response:", data);
-      if (data.secure_url) {
-        const url = data.secure_url;
+      setVideoUrl((prev) => {
+        const next = [...prev];
+        next[id - 1] = finalUrl;
+        return next;
+      });
 
-        setVideoUrl((prev) => {
-          const next = [...prev];
-          next[id - 1] = url + `?t=${Date.now()}`; // 👈 cache-busting
-          return next;
-        });
-      }
-      if (data.secure_url || data.url) {
-        toast.success("Background video uploaded and optimized!");
-      } else {
-        throw new Error("No URL returned from Cloudinary");
-      }
+      toast.success("Video uploaded successfully to R2!");
     } catch (error) {
       console.error("Error uploading video:", error);
-      toast.error(error.message || "Error uploading video, try again.");
+      toast.error(error.message || "Error uploading video.");
     } finally {
       setLoading(false);
     }
   };
+
   const handleFileSelect = async (e) => {
     const file = e.target.files?.[0];
     if (!file) return;
 
+    // 🔥 Validar tipo de archivo
     if (!file.type.startsWith("video/")) {
       toast.error("Please select a valid video file.");
+      e.target.value = null;
+      return;
+    }
+
+    // 🔥 Validar tamaño de archivo
+    if (file.size > MAX_FILE_SIZE) {
+      const sizeMB = (file.size / (1024 * 1024)).toFixed(2);
+      toast.error(`Video too large (${sizeMB}MB). Maximum size is 50MB.`);
+      e.target.value = null;
       return;
     }
 
@@ -478,6 +463,7 @@ function SimpleVideo({
       </div>
     );
   }
+
   return (
     <>
       <div
