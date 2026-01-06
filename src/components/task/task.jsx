@@ -24,6 +24,7 @@ import { cn } from "@/lib/utils";
 import {
   IconAlarmAverage,
   IconCheck,
+  IconDownload,
   IconEraser,
   IconPencil,
   IconPlus,
@@ -133,7 +134,18 @@ export default function Task({ task }) {
       setNewImageFile(null);
     }
   }, [openForm]);
+  const downloadImage = async (url, filename) => {
+    const res = await fetch(url);
+    const blob = await res.blob();
+    const blobUrl = URL.createObjectURL(blob);
 
+    const link = document.createElement("a");
+    link.href = blobUrl;
+    link.download = filename;
+    link.click();
+
+    URL.revokeObjectURL(blobUrl);
+  };
   return (
     <>
       <div
@@ -190,7 +202,7 @@ export default function Task({ task }) {
           }}
           className={cn(
             "animate-none",
-            "max-w-3xl border-white border-2 overflow-y-auto flex flex-col gap-1 p-4 bg-black "
+            "max-w-3xl border-white border-2 max-h-[90vh] overflow-y-auto flex flex-col gap-1 p-4 bg-black "
           )}
         >
           <DialogHeader className="pb-4">
@@ -217,52 +229,60 @@ export default function Task({ task }) {
               </Button>
             </div>
           </DialogHeader>
-          <div
-            className={
-              "h-full flex flex-col md:grid md:grid-cols-[2fr_2fr] gap-8"
-            }
-          >
+          <div className={"h-full flex flex-col md:grid md:grid-cols-2 gap-8"}>
             <div
               className={cn(
                 movilSeccion === "description" ? "flex flex-col" : "hidden",
                 "gap-4 w-full h-full"
               )}
             >
-              <div className="flex flex-col w-full items-center justify-center">
+              <div className="flex flex-col w-full gap-4 items-center justify-center">
                 <div
                   className={
-                    task.image && "w-full h-48 overflow-hidden rounded-lg" // altura para tasks con imagen
+                    task.image && "w-full h-full   overflow-hidden  rounded-lg"
                   }
                 >
                   {task.image ? (
                     <>
                       <Dialog>
-                        <DialogOverlay className="hidden"></DialogOverlay>
-                        <DialogTitle></DialogTitle>
-                        <DialogDescription></DialogDescription>
-                        <DialogTrigger asChild>
+                        <DialogTrigger className="focus-visible:outline-0 flex items-center justify-center w-full h-full">
                           <img
+                            className="max-w-full max-h-[20vh] object-contain rounded"
                             src={task.image}
                             alt={task.name}
-                            className="w-full h-full object-cover cursor-pointer"
                           />
                         </DialogTrigger>
-
                         <DialogContent
-                          style={{ border: `1px solid ${textTheme}` }}
-                          className="max-w-[100vw] md:max-w-[70vw] max-h-[90vh] p-0 border-none bg-black/80 flex items-center justify-center"
+                          style={{
+                            color: textTheme,
+                            backgroundColor: theme,
+                            border: `1px solid ${textTheme}`,
+                          }}
+                          className="h-fit w-fit flex items-center justify-center"
                         >
-                          <DialogHeader className="absolute top-2 right-2">
-                            <DialogClose className="text-red-800 font-bold hover:text-red-400 transition text-3xl">
-                              <X size={28} />
-                            </DialogClose>
+                          <DialogHeader>
+                            <DialogTitle></DialogTitle>
+                            <DialogDescription></DialogDescription>
                           </DialogHeader>
-                          <div className="w-full h-full flex items-center justify-center p-4">
+                          <div className="flex flex-col h-full gap-2 items-center justify-center">
                             <img
+                              className="max-w-full max-h-[80vh] object-contain p-4"
                               src={task.image}
                               alt={task.name}
-                              className="max-w-[65vw] max-h-[85vh] w-auto h-auto object-contain rounded-lg"
                             />
+                            <div>
+                              <Button
+                                onClick={() =>
+                                  downloadImage(
+                                    task.image,
+                                    task.name ?? "imagen"
+                                  )
+                                }
+                                variant="ghost"
+                              >
+                                <IconDownload size={30} />
+                              </Button>
+                            </div>
                           </div>
                         </DialogContent>
                       </Dialog>
@@ -271,7 +291,7 @@ export default function Task({ task }) {
                     <div className="w-full h-full bg-neutral-900 flex items-center justify-center"></div>
                   )}
                 </div>
-                <div className="w-full  flex flex-col gap-2">
+                <div className="w-full flex flex-col gap-2">
                   <span className="font-bold w-full">DESCRIPTION</span>
                   <div
                     style={{
@@ -288,7 +308,7 @@ export default function Task({ task }) {
                   </div>
                 </div>
               </div>
-              <div className="w-full flex flex-col items-center h-full justify-between gap-2  ">
+              <div className="w-full flex flex-col items-center justify-between gap-2  ">
                 <div
                   className={cn(
                     "w-full flex text-sm gap-4 items-center justify-center"
@@ -446,224 +466,240 @@ export default function Task({ task }) {
                 </AlertDialog>
               </div>
             </div>
-            <div
-              className={cn(
-                movilSeccion === "notes"
-                  ? "flex flex-col h-96"
-                  : "hidden md:flex md:flex-col md:h-full",
-                "w-full  gap-4"
-              )}
-            >
-              <div className="font-bold w-full text-center">NOTES</div>
+            <div className="w-full h-[70vh] flex overflow-y-auto">
               <div
-                style={{
-                  "--theme": textTheme,
-                  border: `1px solid ${textTheme}`,
-                }}
                 className={cn(
-                  styles.scrollContainer,
-                  "w-full  h-full flex flex-col overflow-y-auto gap-2 p-2"
+                  movilSeccion === "notes"
+                    ? "flex flex-col h-96"
+                    : "hidden md:flex md:flex-col md:h-full",
+                  "w-full  gap-4"
                 )}
               >
-                {task.notes &&
-                  task.notes.map((note, i) => (
-                    <Dialog key={i}>
-                      <DialogTrigger>
-                        <div
+                <div className="font-bold w-full text-center">NOTES</div>
+                <div
+                  style={{
+                    "--theme": textTheme,
+                    border: `1px solid ${textTheme}`,
+                  }}
+                  className={cn(
+                    styles.scrollContainer,
+                    "w-full  h-full flex flex-col overflow-y-auto gap-2 p-2"
+                  )}
+                >
+                  {task.notes &&
+                    task.notes.map((note, i) => (
+                      <Dialog key={i}>
+                        <DialogTrigger>
+                          <div
+                            style={{
+                              border: `1px solid ${textTheme}`,
+                              backgroundColor: theme,
+                            }}
+                            className="w-full flex flex-col justify-center text-sm gap-2 h-16 items-center p-2  hover:opacity-70 rounded "
+                          >
+                            {new Date(note.createdAt).toLocaleString("en-GB")}
+
+                            <div className="line-clamp-2 ">{note.title}</div>
+                          </div>
+                        </DialogTrigger>
+                        <DialogContent
                           style={{
-                            border: `1px solid ${textTheme}`,
+                            color: textTheme,
                             backgroundColor: theme,
+                            border: `1px solid ${textTheme}`,
                           }}
-                          className="w-full flex flex-col justify-center text-sm gap-2 h-16 items-center p-2  hover:opacity-70 rounded "
+                          className="w-full md:w-1/2   border-2 overflow-x-hidden overflow-y-auto flex flex-col"
                         >
-                          {new Date(note.createdAt).toLocaleString("en-GB")}
+                          <DialogHeader className="pb-4">
+                            <DialogTitle className="text-center font-bold uppercase">
+                              {note.title}
+                            </DialogTitle>
+                          </DialogHeader>
 
-                          <div className="line-clamp-2 ">{note.title}</div>
-                        </div>
-                      </DialogTrigger>
-                      <DialogContent
-                        style={{
-                          color: textTheme,
-                          backgroundColor: theme,
-                          border: `1px solid ${textTheme}`,
-                        }}
-                        className="w-full md:w-1/2   border-2 overflow-x-hidden overflow-y-auto flex flex-col"
-                      >
-                        <DialogHeader className="pb-4">
-                          <DialogTitle className="text-center font-bold uppercase">
-                            {note.title}
-                          </DialogTitle>
-                        </DialogHeader>
+                          <div
+                            className={
+                              note.imageUrl &&
+                              "w-full h-48 overflow-hidden rounded-lg" // altura para tasks con imagen
+                            }
+                          >
+                            {note.imageUrl ? (
+                              <Dialog>
+                                <DialogTrigger className="focus-visible:outline-0 h-full w-full flex items-center justify-center">
+                                  <div className="h-fit w-fit border rounded">
+                                    <img
+                                      className="max-h-44 max-w-full object-contain rounded"
+                                      src={note.imageUrl}
+                                      alt={note.title}
+                                    />
+                                  </div>
+                                </DialogTrigger>
+                                <DialogContent
+                                  style={{
+                                    color: textTheme,
+                                    backgroundColor: theme,
+                                    border: `1px solid ${textTheme}`,
+                                  }}
+                                  className="h-fit w-fit flex items-center justify-center"
+                                >
+                                  <DialogHeader>
+                                    <DialogTitle></DialogTitle>
+                                    <DialogDescription></DialogDescription>
+                                  </DialogHeader>
+                                  <div className="flex flex-col h-full gap-2 items-center justify-center">
+                                    <img
+                                      className="max-w-full max-h-[80vh] p-4"
+                                      src={note.imageUrl}
+                                      alt={note.title}
+                                    />
+                                    <div>
+                                      <Button
+                                        onClick={() =>
+                                          downloadImage(
+                                            note.imageUrl,
+                                            note.title ?? "imagen"
+                                          )
+                                        }
+                                        variant="ghost"
+                                      >
+                                        <IconDownload size={30} />
+                                      </Button>
+                                    </div>
+                                  </div>
+                                </DialogContent>
+                              </Dialog>
+                            ) : (
+                              <div className="w-full h-full bg-neutral-900 flex items-center justify-center"></div>
+                            )}
+                          </div>
 
-                        <div
-                          className={
-                            note.imageUrl &&
-                            "w-full h-48 overflow-hidden rounded-lg" // altura para tasks con imagen
-                          }
+                          <DialogDescription></DialogDescription>
+                          <div
+                            style={{
+                              "--theme": textTheme,
+                              backgroundColor: theme,
+                              border: `2px solid ${textTheme}`,
+                              whiteSpace: "pre-wrap",
+                              overflowX: "hidden",
+                              wordBreak: "break-word",
+                              overflowWrap: "break-word",
+                            }}
+                            className={cn(
+                              styles.scrollContainer,
+                              "overflow-y-auto min-h-16 max-h-40 p-2 text-sm  rounded border-2"
+                            )}
+                          >
+                            {note.text && note.text}
+                          </div>
+                          <DialogClose
+                            style={{ color: theme, backgroundColor: textTheme }}
+                            className="w-full h-10 font-bold active:opacity-50 duration-300 rounded"
+                          >
+                            OK
+                          </DialogClose>
+                        </DialogContent>
+                      </Dialog>
+                    ))}
+                  <div
+                    onClick={() => setOpenForm(true)}
+                    style={{
+                      border: `1px dotted ${textTheme}`,
+                      backgroundColor: theme,
+                    }}
+                    className="flex w-full h-12 justify-center items-center p-2 hover:opacity-70 rounded "
+                  >
+                    <IconPlus color={textTheme} size={20} />
+                  </div>
+                  <Dialog open={openForm} onOpenChange={setOpenForm}>
+                    <DialogContent
+                      ref={containerRef}
+                      style={{
+                        color: textTheme,
+                        backgroundColor: theme,
+                        border: `1px solid ${textTheme}`,
+                      }}
+                      className="w-full md:w-1/2 bg-black  overflow-x-hidden overflow-y-auto flex flex-col"
+                    >
+                      <DialogHeader>
+                        <DialogTitle className="text-center font-bold">
+                          NEW NOTE
+                        </DialogTitle>
+                        <DialogDescription className=""></DialogDescription>
+                      </DialogHeader>
+                      <div className="w-full h-full flex gap-2 items-center justify-center">
+                        <label htmlFor="note" className="font-bold">
+                          TITLE
+                        </label>
+                        <Input
+                          id="note"
+                          style={{
+                            color: textTheme,
+                            border: `1px solid ${textTheme}`,
+                          }}
+                          value={title}
+                          onChange={(e) => setTitle(e.currentTarget.value)}
+                        />
+                      </div>
+                      <div className="w-full h-full">
+                        <label
+                          htmlFor="newImage"
+                          style={{ border: `1px dotted ${textTheme}` }}
+                          className=" min-h-32 rounded items-center flex justify-center"
                         >
-                          {note.imageUrl ? (
-                            <Dialog>
-                              <DialogOverlay className="hidden"></DialogOverlay>
-                              <DialogTitle></DialogTitle>
-                              <DialogDescription></DialogDescription>
-                              <DialogTrigger asChild>
-                                <img
-                                  src={note.imageUrl}
-                                  alt={note.title}
-                                  className="w-full h-full object-cover cursor-pointer"
-                                />
-                              </DialogTrigger>
-
-                              <DialogContent
-                                style={{ border: `1px solid ${textTheme}` }}
-                                className="max-w-[100vw] md:max-w-[70vw] max-h-[90vh] p-0 border-none bg-black/80 flex items-center justify-center"
-                              >
-                                <DialogHeader className="absolute top-2 right-2">
-                                  <DialogClose className="text-red-800 font-bold hover:text-red-400 transition text-3xl">
-                                    <X size={28} />
-                                  </DialogClose>
-                                </DialogHeader>
-                                <div className="w-full h-full flex items-center justify-center p-4">
-                                  <img
-                                    src={note.imageUrl}
-                                    alt={note.title}
-                                    className="max-w-[65vw] max-h-[85vh] w-auto h-auto object-contain rounded-lg"
-                                  />
-                                </div>
-                              </DialogContent>
-                            </Dialog>
+                          {newImagePreview ? (
+                            <img
+                              className="max-w-full max-h-64"
+                              src={newImagePreview}
+                            />
                           ) : (
-                            <div className="w-full h-full bg-neutral-900 flex items-center justify-center"></div>
+                            "Click here  or Paste an Image"
                           )}
-                        </div>
+                        </label>
 
-                        <DialogDescription></DialogDescription>
-                        <div
+                        <input
+                          type="file"
+                          accept="image/*"
+                          className="hidden"
+                          onChange={handleFileInput}
+                          id="newImage"
+                        />
+                      </div>
+                      <div className="w-full h-full flex flex-col gap-2 justify-center">
+                        <label htmlFor="note" className="font-bold">
+                          COMMENT
+                        </label>
+                        <Textarea
                           style={{
                             "--theme": textTheme,
-                            backgroundColor: theme,
-                            border: `2px solid ${textTheme}`,
-                            whiteSpace: "pre-wrap",
-                            overflowX: "hidden",
-                            wordBreak: "break-word",
-                            overflowWrap: "break-word",
+                            border: `1px solid ${textTheme}`,
                           }}
-                          className={cn(
-                            styles.scrollContainer,
-                            "overflow-y-auto min-h-16 max-h-40 p-2 text-sm  rounded border-2"
-                          )}
-                        >
-                          {note.text && note.text}
-                        </div>
-                        <DialogClose
+                          id="note"
+                          rows={4}
+                          value={comment}
+                          className={cn(styles.scrollContainer, "resize-none")}
+                          onChange={(e) => setComment(e.currentTarget.value)}
+                        />
+                      </div>
+                      <div className="w-full h-full flex justify-center">
+                        <Button
                           style={{ color: theme, backgroundColor: textTheme }}
                           className="w-full h-10 font-bold active:opacity-50 duration-300 rounded"
+                          onClick={async () => {
+                            console.log(task.id);
+                            setOpenForm(false);
+                            await addNote(task.id, {
+                              text: comment,
+                              title,
+                              image: newImageFile,
+                            });
+                            toast.success("Note added");
+                          }}
                         >
-                          OK
-                        </DialogClose>
-                      </DialogContent>
-                    </Dialog>
-                  ))}
-                <div
-                  onClick={() => setOpenForm(true)}
-                  style={{
-                    border: `1px dotted ${textTheme}`,
-                    backgroundColor: theme,
-                  }}
-                  className="flex w-full h-12 justify-center items-center p-2 hover:opacity-70 rounded "
-                >
-                  <IconPlus color={textTheme} size={20} />
+                          CREATE NOTE
+                        </Button>
+                      </div>
+                    </DialogContent>
+                  </Dialog>
                 </div>
-                <Dialog open={openForm} onOpenChange={setOpenForm}>
-                  <DialogContent
-                    ref={containerRef}
-                    style={{
-                      color: textTheme,
-                      backgroundColor: theme,
-                      border: `1px solid ${textTheme}`,
-                    }}
-                    className="w-full md:w-1/2 bg-black  overflow-x-hidden overflow-y-auto flex flex-col"
-                  >
-                    <DialogHeader>
-                      <DialogTitle className="text-center font-bold">
-                        NEW NOTE
-                      </DialogTitle>
-                      <DialogDescription className=""></DialogDescription>
-                    </DialogHeader>
-                    <div className="w-full h-full flex gap-2 items-center justify-center">
-                      <label htmlFor="note" className="font-bold">
-                        TITLE
-                      </label>
-                      <Input
-                        id="note"
-                        style={{
-                          color: textTheme,
-                          border: `1px solid ${textTheme}`,
-                        }}
-                        value={title}
-                        onChange={(e) => setTitle(e.currentTarget.value)}
-                      />
-                    </div>
-                    <div className="w-full h-full">
-                      <label
-                        htmlFor="newImage"
-                        style={{ border: `1px dotted ${textTheme}` }}
-                        className=" min-h-32 rounded items-center flex justify-center"
-                      >
-                        {newImagePreview ? (
-                          <img
-                            className="max-w-96 max-h-64"
-                            src={newImagePreview}
-                          />
-                        ) : (
-                          "Click here  or Paste an Image"
-                        )}
-                      </label>
-
-                      <input
-                        type="file"
-                        accept="image/*"
-                        className="hidden"
-                        onChange={handleFileInput}
-                        id="newImage"
-                      />
-                    </div>
-                    <div className="w-full h-full flex flex-col gap-2 justify-center">
-                      <label htmlFor="note" className="font-bold">
-                        COMMENT
-                      </label>
-                      <Textarea
-                        style={{
-                          "--theme": textTheme,
-                          border: `1px solid ${textTheme}`,
-                        }}
-                        id="note"
-                        rows={4}
-                        value={comment}
-                        className={cn(styles.scrollContainer, "resize-none")}
-                        onChange={(e) => setComment(e.currentTarget.value)}
-                      />
-                    </div>
-                    <div className="w-full h-full flex justify-center">
-                      <Button
-                        style={{ color: theme, backgroundColor: textTheme }}
-                        className="w-full h-10 font-bold active:opacity-50 duration-300 rounded"
-                        onClick={async () => {
-                          console.log(task.id);
-                          await addNote(task.id, {
-                            text: comment,
-                            title,
-                            image: newImageFile,
-                          });
-                          setOpenForm(false);
-                          toast.success("Note added");
-                        }}
-                      >
-                        CREATE NOTE
-                      </Button>
-                    </div>
-                  </DialogContent>
-                </Dialog>
               </div>
             </div>
           </div>

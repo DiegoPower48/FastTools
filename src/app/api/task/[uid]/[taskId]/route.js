@@ -1,11 +1,20 @@
-import { v2 as cloudinary } from "cloudinary";
+import {
+  S3Client,
+  PutObjectCommand,
+  DeleteObjectsCommand,
+  ListObjectsV2Command,
+} from "@aws-sdk/client-s3";
 
-cloudinary.config({
-  cloud_name: process.env.CLOUDINARY_CLOUD_NAME,
-  api_key: process.env.CLOUDINARY_API_KEY,
-  api_secret: process.env.CLOUDINARY_API_SECRET,
+const s3Client = new S3Client({
+  region: "auto",
+  endpoint: `https://${process.env.R2_ACCOUNT_ID}.r2.cloudflarestorage.com`,
+  credentials: {
+    accessKeyId: process.env.R2_ACCESS_KEY_ID,
+    secretAccessKey: process.env.R2_SECRET_ACCESS_KEY,
+  },
 });
 
+// --- SUBIR IMAGEN DE TAREA ---
 export async function POST(req, { params }) {
   const { uid, taskId } = await params;
 
@@ -17,54 +26,75 @@ export async function POST(req, { params }) {
       return Response.json({ error: "Missing file" }, { status: 400 });
     }
 
-    const arrayBuffer = await file.arrayBuffer();
-    const buffer = Buffer.from(arrayBuffer);
+    const buffer = Buffer.from(await file.arrayBuffer());
 
-    const uploadResult = await new Promise((resolve, reject) => {
-      const stream = cloudinary.uploader.upload_stream(
-        {
-          folder: `fasttools/${uid}/task${taskId}`,
-          public_id: "image",
-          overwrite: true, // Reemplaza siempre
-        },
-        (err, result) => {
-          if (err) reject(err);
-          else resolve(result);
-        }
-      );
+    // Nombre del archivo: fasttools/uid/taskID/image
+    const fileName = `fasttools/${uid}/task${taskId}/image`;
 
-      stream.end(buffer);
-    });
+    const uploadParams = {
+      Bucket: process.env.R2_BUCKET_NAME,
+      Key: fileName,
+      Body: buffer,
+      ContentType: file.type || "image/jpeg",
+    };
 
-    return Response.json(uploadResult, { status: 200 });
+    // R2 sobrescribe automáticamente si la Key es la misma (overwrite: true)
+    await s3Client.send(new PutObjectCommand(uploadParams));
+
+    return Response.json(
+      {
+        secure_url: `${process.env.R2_PUBLIC_URL}/${fileName}`,
+        public_id: fileName,
+      },
+      { status: 200 }
+    );
   } catch (error) {
     console.error("Error uploading task image:", error);
     return Response.json({ error: "Upload failed" }, { status: 500 });
   }
 }
+
+// --- BORRAR TODO LO RELACIONADO A UNA TAREA ---
 export async function DELETE(req, { params }) {
   const { uid, taskId } = await params;
+  const folderPath = `fasttools/${uid}/task${taskId}/`;
 
   try {
-    const folderPath = `fasttools/${uid}/task${taskId}`; // 1. Borrar todos los archivos dentro de la carpeta
+    // 1. Listar todos los archivos que empiezan con ese prefijo (imágenes de la tarea, notas, etc.)
+    const listParams = {
+      Bucket: process.env.R2_BUCKET_NAME,
+      Prefix: folderPath,
+    };
 
-    const deleteResources = await cloudinary.api.delete_resources_by_prefix(
-      folderPath
+    const listedObjects = await s3Client.send(
+      new ListObjectsV2Command(listParams)
     );
 
-    // 2. Borrar la carpeta vacía
-    const deleteFolder = await cloudinary.api.delete_folder(folderPath);
+    if (!listedObjects.Contents || listedObjects.Contents.length === 0) {
+      return Response.json(
+        { message: "No files found to delete" },
+        { status: 200 }
+      );
+    }
 
-    return Response.json(
-      {
-        message: "Task folder fully deleted",
-        deletedFiles: deleteResources,
-        deletedFolder: deleteFolder,
+    // 2. Preparar el array de objetos a borrar
+    const deleteParams = {
+      Bucket: process.env.R2_BUCKET_NAME,
+      Delete: {
+        Objects: listedObjects.Contents.map(({ Key }) => ({ Key })),
       },
+    };
+
+    // 3. Borrar todos de golpe
+    await s3Client.send(new DeleteObjectsCommand(deleteParams));
+
+    // Nota: En R2, una vez borrados los archivos, la "carpeta" desaparece visualmente
+    return Response.json(
+      { message: "Task folder and files fully deleted" },
       { status: 200 }
     );
   } catch (error) {
-    console.error("Error deleting task folder:");
+    console.error("Error deleting task folder:", error);
     return Response.json(
       { error: "Failed to delete task folder" },
       { status: 500 }
