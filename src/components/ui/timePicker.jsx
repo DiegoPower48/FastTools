@@ -20,15 +20,17 @@ export function TimePicker({ setNewDate }) {
   const [time, newTime] = useState("");
 
   useEffect(() => {
-    const newDate = new Date(
-      date.getFullYear(),
-      date.getMonth(),
-      date.getDate(),
-      time.slice(0, 2),
-      time.slice(3, 5),
-      time.slice(6, 8)
-    );
-    setNewDate(newDate);
+    if (date) {
+      const newDate = new Date(
+        date.getFullYear(),
+        date.getMonth(),
+        date.getDate(),
+        time.slice(0, 2),
+        time.slice(3, 5),
+        time.slice(6, 8),
+      );
+      setNewDate(newDate);
+    }
   }, [time, date]);
 
   return (

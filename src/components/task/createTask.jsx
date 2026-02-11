@@ -13,6 +13,7 @@ import {
   DialogHeader,
   DialogTitle,
 } from "@/components/ui/dialog";
+import styles from "@/components/style.module.css";
 import { TimePicker } from "../ui/timePicker";
 import { Input } from "../ui/input";
 import { Button } from "../ui/button";
@@ -20,6 +21,7 @@ import { Textarea } from "../ui/textarea";
 import { getAuth } from "firebase/auth";
 import toast from "react-hot-toast";
 import { useFireStore } from "@/store/fireStore";
+import { cn } from "@/lib/utils";
 
 export default function CreateTask({ open, setOpen }) {
   const [descrition, setDescrition] = useState("");
@@ -111,7 +113,7 @@ export default function CreateTask({ open, setOpen }) {
         23,
         59,
         59,
-        999
+        999,
       );
 
       finalFrequency = "daily";
@@ -142,7 +144,7 @@ export default function CreateTask({ open, setOpen }) {
         23,
         59,
         59,
-        999
+        999,
       );
 
       finalFrequency = "weekly";
@@ -257,8 +259,12 @@ export default function CreateTask({ open, setOpen }) {
                   placeholder="Description"
                   rows={4}
                   required
-                  style={{ color: textTheme, border: `1px solid ${textTheme}` }}
-                  className="resize-none"
+                  style={{
+                    "--theme": textTheme,
+                    color: textTheme,
+                    border: `1px solid ${textTheme}`,
+                  }}
+                  className={cn(styles.scrollContainer, "resize-none")}
                   value={descrition}
                   onChange={(e) => setDescrition(e.currentTarget.value)}
                 />
