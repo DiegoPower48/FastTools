@@ -1,0 +1,21 @@
+<svg 
+  id="jwt-logo"
+  viewBox="0 0 200 80" 
+  xmlns="http://www.w3.org/2000/svg"
+  className="w-full h-auto"
+>
+    <text 
+    x="50%" 
+    y="55%" 
+    dominant-baseline="middle" 
+    text-anchor="middle" 
+    font-family="Arial, sans-serif" 
+    font-weight="900" 
+    font-size="60" 
+    fill="black"
+    id="jwt-text"
+  >
+    JWT
+  </text>
+   
+</svg>

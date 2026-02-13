@@ -63,7 +63,6 @@ const componentMap = {
 };
 export default function LocalTable() {
   const {
-    tabs,
     colors,
     links,
     api,
@@ -79,8 +78,6 @@ export default function LocalTable() {
     setTheme,
     setTextTheme,
     textTheme,
-    background,
-    setBackground,
     displayColors,
     setDisplayColors,
     displayLinks,

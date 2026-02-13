@@ -223,7 +223,7 @@ function ColorsGrid({
     if (!over || active.id === over.id) return;
 
     const oldIndex = colors.findIndex(
-      (c) => String(c.id) === String(active.id)
+      (c) => String(c.id) === String(active.id),
     );
     const newIndex = colors.findIndex((c) => String(c.id) === String(over.id));
 
@@ -262,7 +262,7 @@ function ColorsGrid({
   };
   const visibleColors = colors.slice(
     0,
-    colors.map((c) => (c.color || c.nombre) !== "").lastIndexOf(true) + 1
+    colors.map((c) => (c.color || c.nombre) !== "").lastIndexOf(true) + 1,
   );
 
   // Si editable === true -> habilitamos DnD (dnd-kit)
@@ -414,7 +414,7 @@ export default function ColorsDesktop({
         }}
         className={cn(
           !displayColors && "justify-center",
-          ` w-full flex-1 flex items-center overflow-x-auto overflow-y-hidden ${styles.scrollContainer}`
+          ` w-full flex-1 flex items-center overflow-x-auto overflow-y-hidden ${styles.scrollContainer}`,
         )}
       >
         <div className="h-full">
@@ -560,7 +560,7 @@ function Color({ color, theme, editable, textTheme, displayColors }) {
         (color.color || editable) && "cursor-pointer",
         hover && !displayColors && "scale-110 ",
         displayColors ? " rounded-xl p-2" : "rounded p-1",
-        " w-full  flex  text-white items-center justify-center gap-2"
+        " w-full  flex  text-white items-center justify-center gap-2",
       )}
     >
       <div

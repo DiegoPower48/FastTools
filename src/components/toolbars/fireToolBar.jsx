@@ -37,9 +37,7 @@ import {
   IconLayoutNavbar,
   IconCalculator,
   IconVideoPlus,
-  IconPhotoEdit,
   IconApi,
-  IconHash,
   IconQrcode,
   IconRocket,
   IconDoor,
@@ -47,9 +45,6 @@ import {
   IconTools,
   IconCheck,
   IconCarambola,
-  IconCalendarMonth,
-  IconListCheck,
-  IconSpy,
 } from "@tabler/icons-react";
 import { motion } from "framer-motion";
 import { useEffect, useState } from "react";
@@ -63,27 +58,28 @@ import {
   CalendarClock,
   Film,
   HatGlasses,
-  ImageUpscale,
   Link,
-  NotebookText,
+  LucideStickyNote,
   Palette,
   Pipette,
-  Sun,
+  ScissorsSquare,
 } from "lucide-react";
 import { Button } from "../ui/button";
+import Jwtsvg from "@/assets/jwtsvg";
+import Conversorsvg from "@/assets/conversorsvg";
 
 // === Icon Map ===
 const iconMap = {
   header: IconLayoutNavbar,
   calculator: IconCalculator,
   recorder: IconVideoPlus,
-  notes: NotebookText,
-  conversor: IconPhotoEdit,
+  notes: LucideStickyNote,
+  conversor: Conversorsvg,
   links: Link,
   colors: Palette,
   apiTester: IconApi,
-  jwt: IconHash,
-  editor: ImageUpscale,
+  jwt: Jwtsvg,
+  editor: ScissorsSquare,
   qr: IconQrcode,
   colorpicker: Pipette,
   videoTrimmer: Film,
@@ -252,7 +248,7 @@ export default function FireToolBar() {
         delay: 200,
         tolerance: 8,
       },
-    })
+    }),
   );
   const [mounted, setMounted] = useState(false);
   const [activeId, setActiveId] = useState(null);
@@ -468,7 +464,7 @@ export default function FireToolBar() {
       <div
         className={cn(
           mode === "tools" ? "flex-row" : "flex-col",
-          `w-screen flex  md:flex-row justify-between items-center gap-2 min-h-20 px-8`
+          `w-screen flex  md:flex-row justify-between items-center gap-2 min-h-20 px-8`,
         )}
       >
         <div className={cn("flex  justify-end  gap-4")}>
@@ -520,7 +516,7 @@ export default function FireToolBar() {
                 }}
                 onClick={() => setPeriod("all")}
                 className={cn(
-                  "font-bold  h-14 p-2 rounded flex items-center justify-center"
+                  "font-bold  h-14 p-2 rounded flex items-center justify-center",
                 )}
               >
                 ALL
@@ -533,7 +529,7 @@ export default function FireToolBar() {
                 }}
                 onClick={() => setPeriod("daily")}
                 className={cn(
-                  "font-bold  h-14 p-2 rounded flex items-center justify-center"
+                  "font-bold  h-14 p-2 rounded flex items-center justify-center",
                 )}
               >
                 DAY
@@ -546,7 +542,7 @@ export default function FireToolBar() {
                   boxShadow: period === "weekly" && `0 0 15px 5px ${textTheme}`,
                 }}
                 className={cn(
-                  "font-bold  h-14 p-2 rounded flex items-center justify-center"
+                  "font-bold  h-14 p-2 rounded flex items-center justify-center",
                 )}
               >
                 WEEK
@@ -560,7 +556,7 @@ export default function FireToolBar() {
                     period === "monthly" && `0 0 15px 5px ${textTheme}`,
                 }}
                 className={cn(
-                  "font-bold  h-14 p-2 rounded flex items-center justify-center"
+                  "font-bold  h-14 p-2 rounded flex items-center justify-center",
                 )}
               >
                 MONTH
@@ -574,7 +570,7 @@ export default function FireToolBar() {
                     period === "special" && `0 0 15px 5px ${textTheme}`,
                 }}
                 className={cn(
-                  "font-bold  h-14 p-2 rounded flex items-center justify-center"
+                  "font-bold  h-14 p-2 rounded flex items-center justify-center",
                 )}
               >
                 <IconCarambola
@@ -604,7 +600,7 @@ export default function FireToolBar() {
         <div
           className={cn(
             mode === "tools" && "flex-col md:flex-row",
-            "flex  justify-end cursor-pointer gap-2 md:gap-4"
+            "flex  justify-end cursor-pointer gap-2 md:gap-4",
           )}
         >
           <div
