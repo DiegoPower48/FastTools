@@ -1,7 +1,11 @@
 {
   "metadata": {
-    "title": "Fast Tools",
+    "title": "Herramientas para desarrollo rápida y fácil",
+    "applicationName": "Fast Tools",
     "description": "FastTools es una colección de herramientas de desarrollo para programadores: generadores, convertidores, utilidades y recursos para acelerar tu flujo de trabajo.",
+    "alternates": {
+      "canonical": "https://fasttools.vercel.app"
+    },
     "icons": {
       "icon": "/favicon.ico"
     },
