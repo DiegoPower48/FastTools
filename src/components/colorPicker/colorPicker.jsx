@@ -177,7 +177,7 @@ export default function ImageColorPicker({ theme, textTheme }) {
   const handleDownload = (format) => {
     if (!canvasRef.current) return;
     const link = document.createElement("a");
-    link.download = `image.${format}`;
+    link.download = `${Date.now()}.${format}`;
     link.href = canvasRef.current.toDataURL(`image/${format}`);
     link.click();
   };
