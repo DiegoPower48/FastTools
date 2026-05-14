@@ -232,7 +232,7 @@ export default function FireToolBar() {
   const time = useClock();
   const router = useRouter();
   const getOut = () => {
-    fireStore.getState().resetStore();
+    // fireStore.getState().resetStore(); NO SE PORQUE LO PUSE INICIALMENTE, VERIFICAR!
     logout();
     toast.success("Session closed");
     router.push("/");
