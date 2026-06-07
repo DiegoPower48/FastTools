@@ -16,7 +16,7 @@ export default function BackgroundImage() {
       <img
         src={background}
         alt={background}
-        className="fixed inset-0 w-full max-w-screen h-full object-contain
+        className="fixed inset-0 w-full max-w-screen h-full object-cover
          -z-10 select-none pointer-events-none"
         fetchPriority="high"
       />
