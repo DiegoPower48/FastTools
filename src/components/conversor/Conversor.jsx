@@ -11,7 +11,7 @@ import {
 import { Input } from "@/components/ui/input";
 import { BrushCleaningIcon, ImageUp } from "lucide-react";
 import toast from "react-hot-toast";
-import { IconDeviceFloppy } from "@tabler/icons-react";
+import { IconClipboard, IconDeviceFloppy } from "@tabler/icons-react";
 import { Button } from "../ui/button";
 
 export default function Conversor({ theme, textTheme }) {
@@ -74,7 +74,42 @@ export default function Conversor({ theme, textTheme }) {
 
     img.src = url;
   };
+const generateDataURL = async () => {
 
+    const canvas = canvasRef.current;
+    if (!canvas) return;
+
+    const parsedWidth = parseInt(width);
+    const parsedHeight = parseInt(height);
+
+    canvas.width = parsedWidth;
+    canvas.height = parsedHeight;
+
+    const ctx = canvas.getContext("2d");
+    ctx.imageSmoothingEnabled = true;
+    ctx.imageSmoothingQuality = "high";
+    ctx.clearRect(0, 0, parsedWidth, parsedHeight);
+    ctx.drawImage(originalImage, 0, 0, parsedWidth, parsedHeight);
+
+    let mimeType = `image/${format}`;
+    if (format === "jpg" || format === "jpeg") mimeType = "image/jpeg";
+
+    const quality = format === "png" || format === "ico" ? undefined : 0.92;
+
+    const url = canvas.toDataURL(mimeType, quality);
+    return url;
+  };
+
+  const copyDataURL = async () => {
+    const data = await generateDataURL();
+
+    try {
+      await navigator.clipboard.writeText(data);
+      toast.success("Data URL copiada al clipboard");
+    } catch (err) {
+      toast.error("Error al copiar");
+    }
+  };
   // Drag & Drop handlers con contador
   const handleDragEnter = (e) => {
     e.preventDefault();
@@ -371,8 +406,10 @@ export default function Conversor({ theme, textTheme }) {
                     <SelectItem value="webp">WEBP</SelectItem>
                     <SelectItem value="jpeg">JPEG</SelectItem>
                     <SelectItem value="png">PNG</SelectItem>
+                    <SelectItem value="URL">URL</SelectItem>
                     <SelectItem value="ico">ICO</SelectItem>
                     <SelectItem value="avif">AVIF</SelectItem>
+                    
                   </SelectContent>
                 </Select>
               </div>
@@ -427,13 +464,14 @@ export default function Conversor({ theme, textTheme }) {
 
             <div className="h-full w-full flex items-center justify-center md:mt-4">
               <Button
-                onClick={descargar}
+                onClick={format === "URL" ? copyDataURL : descargar}
                 style={{ color: theme, backgroundColor: textTheme }}
                 className="hover:opacity-80 w-full font-bold"
               >
                 <div className="flex gap-2 items-center justify-center">
-                  <span className="">DOWNLOAD</span>
-                  <IconDeviceFloppy size={18} />
+                  <span className="">{format === "URL" ? "COPY URL" : "DOWNLOAD"}</span>
+                  
+                  {format === "URL" ? <IconClipboard size={18} /> : <IconDeviceFloppy size={18} />}
                 </div>
               </Button>
             </div>
